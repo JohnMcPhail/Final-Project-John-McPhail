@@ -1,11 +1,24 @@
 library(geomorph)
 library(tidyverse)
+library(rstudioapi)
 
-## install.packages("geomorph")  # run once in Console if needed
+getwd()
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+getwd()
 
-## 1. Paths to your two folders ----
-path1 <- "C:/Users/John/Texas A&M University-Corpus Christi/Bird, Chris - xrays/Johns landmarked photos/2024-12_nmnh_c-matnog_a-matnog-sorsogon_xrays/xrays_cropped-for-geomorph"
-path2 <- "C:/Users/John/Texas A&M University-Corpus Christi/Bird, Chris - xrays/Johns landmarked photos/2024-12_nmnh_c-taluksangay_a-sacol-island_xrays/xrays_cropped-for-geomorph"
+
+## 1. Paths to your two folders (relative to project root) ----
+path1 <- file.path(
+  "Johns landmarked photos",
+  "2024-12_nmnh_c-matnog_a-matnog-sorsogon_xrays",
+  "xrays_cropped-for-geomorph"
+)
+
+path2 <- file.path(
+  "Johns landmarked photos",
+  "2024-12_nmnh_c-taluksangay_a-sacol-island_xrays",
+  "xrays_cropped-for-geomorph"
+)
 
 ## 2. Get all *Back.TPS files from both folders ----
 get_back_tps <- function(dir) {
@@ -13,11 +26,13 @@ get_back_tps <- function(dir) {
              pattern = "Back\\.TPS$",
              full.names = TRUE)
 }
+
 tps_files <- c(get_back_tps(path1), get_back_tps(path2))
 
 ## 3. Read TPS files and build 3D landmark array ----
 tps_list <- lapply(tps_files, geomorph::readland.tps)
 names(tps_list) <- basename(tps_files)
+
 
 n_spec <- length(tps_list)
 n_land <- nrow(tps_list[[1]])
@@ -202,7 +217,7 @@ legend("topright",
 # (You can comment this out if you only care about plots)
 
 # Procrustes distance between allometry-corrected group means
-tapply(dist_to_mean, group, mean)    # average within-group distance
+tapply(procdist_to_mean, group, mean)    # average within-group distance
 
 ## === Summary of morphometric results ===
 
