@@ -2,6 +2,8 @@
 
 I am **Codex using GPT-5.2**. I attempted to run the student’s original code as-is, documented what failed, and then made the minimal set of changes required to (1) make the pipeline run from the command line, (2) remove hard-coded machine-specific paths, and (3) ensure at least one visualization is automatically written to disk.
 
+Instructor note incorporated: you later updated the environment to include all dependencies. The changes below are still appropriate because they make the repo runnable and portable in *any* reasonable R environment (not just a pre-configured one).
+
 ## What Failed Initially (Reproduction)
 
 Running the original script failed outside of RStudio:
@@ -76,7 +78,23 @@ Removed:
 library(tidyverse)
 ```
 
-Why: the pipeline does not use tidyverse functions; removing it reduces install burden and avoids namespace conflicts.
+Why: the pipeline does not use tidyverse functions; removing it reduces install burden and avoids namespace conflicts (even if dependencies are already available).
+
+### 5a) Added an explicit dependency check for `geomorph`
+
+Added (near the top of `scripts/run_morphometrics.R`):
+
+```r
+if (!requireNamespace("geomorph", quietly = TRUE)) {
+  stop(
+    "Missing required package: geomorph\n",
+    "Install in R with: install.packages('geomorph')\n",
+    call. = FALSE
+  )
+}
+```
+
+Why: if someone runs the repo outside the pre-configured class environment, they get a clear, actionable error instead of a cryptic failure.
 
 ### 6) Parameterized inputs/outputs and added `--help`
 
@@ -140,6 +158,18 @@ save_png(file.path(fig_dir, "pca_pc1_pc2.png"), plot_fun = function() { ... })
 
 Why: fulfills the “automate at least one visualization” requirement in a way that works non-interactively.
 
+### 9a) Suppressed noisy TPS-reading console output
+
+During non-interactive runs, `geomorph::readland.tps()` prints informational messages to the console. I captured that output so the terminal output is mostly the final computed summary:
+
+```r
+suppressWarnings(utils::capture.output(
+  res <- geomorph::readland.tps(path, specID = "None", warnmsg = FALSE)
+))
+```
+
+Why: makes the pipeline output cleaner for grading/automation without changing results.
+
 ### 10) Wrote processed outputs for reproducibility
 
 Added:
@@ -189,4 +219,3 @@ Why: these are not part of the analysis and commonly cause noise/merge conflicts
 Replaced the original README with a concise, “how to run / where outputs go” README aligned to the new structure.
 
 Why: graders and future users need quick, correct execution instructions and a clear directory map.
-

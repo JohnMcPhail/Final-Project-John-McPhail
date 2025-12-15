@@ -2,6 +2,8 @@
 
 This feedback is organized by the grading categories you listed: repo organization, data, script, README, and visualizations. It also includes additional comments and an overall summary.
 
+Note: you (the instructor) indicated the grading environment now includes all required dependencies. The feedback below focuses on what the repo itself should do to be portable and reproducible regardless of environment.
+
 ## Repo Organization
 
 **What’s strong**
@@ -45,6 +47,7 @@ This feedback is organized by the grading categories you listed: repo organizati
 - The original report/code included hard-coded absolute Windows paths (non-portable).
 - The original console “results” were hard-coded text (“p ≈ ...”) rather than being computed from the model output.
 - Figures were created interactively but not written to files, which makes it harder to verify outputs without running an interactive R session.
+- Dependency management was implicit (no clear “required packages” list and no friendly error if a key package was missing).
 
 **What was fixed**
 
@@ -52,6 +55,7 @@ This feedback is organized by the grading categories you listed: repo organizati
 - Inputs/outputs are parameterized and use repo-relative paths by default.
 - P-values/R² in `results/summary.txt` come from the models that are actually run.
 - Figures are saved automatically into `results/figures/`.
+- The script now checks for `geomorph` and fails with a clear install message if it is missing (even though the grading environment now includes dependencies).
 
 ## README.md
 
