@@ -1,0 +1,57 @@
+---
+title: "Vertebra Morphometrics Project"
+author: "John McPhail"
+date: "2025-12-05"
+output: html_document
+---
+
+## Overview
+
+This project automates a geometric morphometric workflow for comparing vertebra
+shape between two fish populations (Matnog vs Sacol) using landmark coordinates
+stored in TPS files.
+
+The analysis pipeline lives in `scripts/run_morphometrics.R` and is designed to
+run without RStudio.
+
+## Run the pipeline
+
+```{r eval=FALSE}
+system("Rscript ../scripts/run_morphometrics.R")
+```
+
+After running, outputs are written to:
+
+- `results/summary.txt`
+- `results/figures/`
+- `data/processed/`
+
+## Results (if present)
+
+```{r}
+summary_path <- file.path("..", "results", "summary.txt")
+if (file.exists(summary_path)) {
+  cat(readLines(summary_path), sep = "\n")
+} else {
+  cat("Run `Rscript scripts/run_morphometrics.R` from the repo root to generate outputs.")
+}
+```
+
+```{r, echo=FALSE}
+fig_dir <- file.path("..", "results", "figures")
+figs <- c(
+  "pca_pc1_pc2.png",
+  "mean_shape_raw.png",
+  "within_group_variation.png",
+  "mean_shape_size_corrected.png"
+)
+
+paths <- file.path(fig_dir, figs)
+paths <- paths[file.exists(paths)]
+
+if (length(paths) > 0) {
+  knitr::include_graphics(paths)
+} else {
+  cat("No figures found in `results/figures/`. Run the pipeline to generate them.")
+}
+```

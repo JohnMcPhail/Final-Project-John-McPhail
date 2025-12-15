@@ -1,8 +1,28 @@
-# Ignore everything in Johns landmarked photos ...
+# Ignore everything in the large raw photo folder(s) ...
 Johns landmarked photos/**
+data/raw/johns_landmarked_photos/**
+
 # ... but keep the folder itself
 !Johns landmarked photos/
+!data/raw/johns_landmarked_photos/
+
 # ... and track all TPS files inside it (any depth)
 !Johns landmarked photos/**/*.TPS
 !Johns landmarked photos/**/*.tps
+!data/raw/johns_landmarked_photos/**/*.TPS
+!data/raw/johns_landmarked_photos/**/*.tps
 
+# R session artifacts
+.Rhistory
+.RData
+
+# Windows download metadata
+*:Zone.Identifier
+
+# Generated outputs
+results/**
+!results/.gitkeep
+!results/figures/
+!results/figures/.gitkeep
+data/processed/**
+!data/processed/.gitkeep
