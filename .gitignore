@@ -1,8 +1,0 @@
-# Ignore everything in Johns landmarked photos ...
-Johns landmarked photos/**
-# ... but keep the folder itself
-!Johns landmarked photos/
-# ... and track all TPS files inside it (any depth)
-!Johns landmarked photos/**/*.TPS
-!Johns landmarked photos/**/*.tps
-
