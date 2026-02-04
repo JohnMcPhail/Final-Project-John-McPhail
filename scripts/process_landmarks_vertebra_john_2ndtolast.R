@@ -14,6 +14,10 @@ library(geomorph)
 library(tidyverse)
 library(janitor)
 library(patchwork)
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
 
 source("gm_functions.R")
 getwd()
@@ -248,3 +252,80 @@ pca_layouts_resid <- gm_step10_arrange_pca_shapes(
   corner_shapes = shape_corner_plots_resid
 )
 pca_layouts_resid
+
+
+#Overlay mean shapes: matnog vs socal (same axes) 
+
+coords <- Y.gpa$coords
+
+mean_socal  <- geomorph::mshape(coords[, , group == "socal",  drop = FALSE])
+mean_matnog <- geomorph::mshape(coords[, , group == "matnog", drop = FALSE])
+
+# Helper: convert matrix -> tibble with landmark ids
+as_lm_tbl <- function(M, grp) {
+  tibble(
+    landmark = seq_len(nrow(M)),
+    x = M[, 1],
+    y = M[, 2],
+    group = grp
+  )
+}
+
+mean_tbl <- bind_rows(
+  as_lm_tbl(mean_matnog, "matnog"),
+  as_lm_tbl(mean_socal,  "socal")
+)
+
+# Edges for plotting in ggplot
+edge_df <- outline_edges %>%
+  left_join(mean_tbl, by = c("from" = "landmark")) %>%
+  rename(x = x, y = y, group = group) %>%
+  left_join(mean_tbl, by = c("to" = "landmark", "group" = "group"), suffix = c("_from", "_to"))
+
+# Vectors showing landmark displacement: matnog -> socal
+vec_df <- as_lm_tbl(mean_matnog, "matnog") %>%
+  select(landmark, x_matnog = x, y_matnog = y) %>%
+  left_join(as_lm_tbl(mean_socal, "socal") %>% select(landmark, x_socal = x, y_socal = y),
+            by = "landmark")
+
+overlay_plot <-
+  ggplot() +
+  # optional: draw displacement arrows (matnog -> socal)
+  geom_segment(
+    data = vec_df,
+    aes(x = x_matnog, y = y_matnog, xend = x_socal, yend = y_socal),
+    linewidth = 0.5,
+    alpha = 0.6,
+    arrow = arrow(length = unit(0.12, "inches"))
+  ) +
+  # outlines
+  geom_segment(
+    data = edge_df,
+    aes(x = x_from, y = y_from, xend = x_to, yend = y_to, color = group),
+    linewidth = 0.9
+  ) +
+  # mean landmarks
+  geom_point(
+    data = mean_tbl,
+    aes(x = x, y = y, color = group),
+    size = 3
+  ) +
+  # landmark labels (offset slightly so they don't sit exactly on points)
+  geom_text(
+    data = mean_tbl,
+    aes(x = x, y = y, label = landmark, color = group),
+    nudge_y = 0.01,
+    size = 4,
+    show.legend = FALSE
+  ) +
+  coord_equal() +
+  labs(
+    title = "Overlay of mean shapes (matnog vs socal)",
+    x = "X (Procrustes)",
+    y = "Y (Procrustes)"
+  ) +
+  theme_minimal()
+
+# Match your earlier orientation flips
+overlay_plot + scale_x_reverse() + scale_y_reverse()
+

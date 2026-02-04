@@ -15,14 +15,6 @@ library(tidyverse)
 library(janitor)
 library(patchwork)
 
-library(dplyr)
-library(tidyr)
-library(stringr)
-library(ggplot2)
-
-
-
-
 source("gm_functions.R")
 getwd()
 #### Get Data ####
@@ -31,13 +23,20 @@ getwd()
 
 
 tps_files <-
-  list.files(
-    path = "../xray_posterior_john_mcphail_non_dvc",
-    pattern = "(?i)posterior.*\\.TPS$",
-    full.names = TRUE
+  list(
+    list.files(
+      path = "../data/raw/johns_landmarked_photos/2024-12_nmnh_c-matnog_a-matnog-sorsogon_xrays/xrays_cropped-for-geomorph",
+      pattern = "(?i)BACK.*\\.TPS$",
+      full.names = TRUE
+    ),
+    list.files(
+      path = "../data/raw/johns_landmarked_photos/2024-12_nmnh_c-taluksangay_a-sacol-island_xrays/xrays_cropped-for-geomorph",
+      pattern = "(?i)BACK.*\\.TPS$",
+      full.names = TRUE
+    )
   ) %>%
+  unlist() %>%
   normalizePath()
-
 
 
 #### 1. Set up and read the TPS file ####
@@ -113,14 +112,8 @@ coords_tbl
 mean_shape_results <- gm_step5_mean_shape_plot(coords_tbl, outline_edges)
 mean_shape_tbl <- mean_shape_results$mean_shape_tbl
 outline_mean_tbl <- mean_shape_results$outline_mean_tbl
-mean_shape_plot <- mean_shape_results$plot +
-  scale_x_reverse() +
-  scale_y_reverse()
-
+mean_shape_plot <- mean_shape_results$plot
 mean_shape_plot
-
-
-
 #### 6. Mean shape by era x site with ggplot ####
 
 mean_shape_era_site_results <- gm_step6_mean_shape_by_group(coords_tbl, outline_edges)
